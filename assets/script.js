@@ -106,7 +106,7 @@
     b.className = 'tab';
     b.type = 'button';
     b.setAttribute('role', 'tab');
-    b.innerHTML = `<span>${ep.label}</span><span class="tsub">${ep.robot} · ${ep.views.length} views</span>`;
+    b.innerHTML = `<span>${ep.label}</span><span class="tsub">${ep.views.length} views · ${ep.robot}</span>`;
     b.addEventListener('click', () => showEpisode(i));
     tabs.appendChild(b);
   });
