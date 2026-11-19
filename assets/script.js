@@ -13,8 +13,8 @@
       instruction: "Grasp the thermos with one hand and pour water into the cup lid." },
     { id: "red_block", label: "Move the red block", views: ["Head", "Chest", "Right wrist"], robot: "AgileX Cobot Magic",
       instruction: "Put the red build block in the center of the table." },
-    { id: "beaker", label: "Shake the beaker", views: ["Head", "Chest", "Left wrist"], robot: "AlphaBot 2",
-      instruction: "Pick up the beaker with the right gripper, shake it three times, and then put it down." },
+    { id: "tape_box", label: "Tape into the box", views: ["Head", "Chest", "Left wrist"], robot: "AlphaBot 2",
+      instruction: "Pick up the white tape and place it into the black box, pick up the silver tape and place it into the brown box." },
     { id: "paper_ball", label: "Hand over a paper ball", views: ["Head", "Chest", "Left wrist"], robot: "AlphaBot 2",
       instruction: "Pass the paper ball to the right gripper." },
     { id: "dolls_box", label: "Dolls into the box", views: ["Head", "Chest", "Left wrist", "Right wrist"], robot: "AlphaBot 2",
@@ -57,9 +57,9 @@
   const POLICIES = ['FastWAM', 'FastWAM-Joint', 'Ours'];
 
   const ROBOT = [
+    { id: 'robot_cup_into_box', label: 'Cup into box', text: 'Put the blue cup in the box.' },
     { id: 'robot_cubes_into_cups', label: 'Cubes into cups', text: 'Put the red cube in the red cup and the blue cube in the blue cup.' },
     { id: 'robot_stack_cups', label: 'Stack cups', text: 'Stack the orange cup in the red cup, then the red cup in the blue cup.' },
-    { id: 'robot_cup_into_box', label: 'Cup into box', text: 'Put the blue cup in the box.' },
   ];
 
   const $ = (s, el = document) => el.querySelector(s);
@@ -78,11 +78,13 @@
     if (window.scrollY < firstSec.offsetTop - window.innerHeight * 0.5) links.forEach((a) => a.classList.remove('active'));
   }, { passive: true });
 
-  // play videos only while visible
+  // play videos only while visible (and never on their own when the reader prefers reduced motion)
+  const calm = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (calm) document.querySelectorAll('video[autoplay]').forEach((v) => { v.removeAttribute('autoplay'); v.pause(); });
   const vidObs = new IntersectionObserver((entries) => {
     entries.forEach((e) => {
       const v = e.target;
-      if (e.isIntersecting) { if (!v.dataset.userPaused) v.play().catch(() => {}); } else { v.pause(); }
+      if (e.isIntersecting) { if (!v.dataset.userPaused && !calm) v.play().catch(() => {}); } else { v.pause(); }
     });
   }, { threshold: 0.2 });
 
@@ -248,8 +250,10 @@
 // Keep at least three words on the last line of every text block: bind the last three
 // words with no-break spaces (skipped when they are long, e.g. e-mail addresses).
 (function widont() {
-  const blocks = document.querySelectorAll('p, figcaption, li, .lede, .instr');
+  const blocks = document.querySelectorAll('.sec p, .sec figcaption, .sec li');
   blocks.forEach((el) => {
+    const disp = getComputedStyle(el).display;
+    if (disp.includes('flex') || disp.includes('grid')) return;
     const texts = [];
     const walker = document.createTreeWalker(el, NodeFilter.SHOW_TEXT);
     let n;

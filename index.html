@@ -7,7 +7,15 @@
 <meta name="description" content="ViewDreamer is a single robot world model that predicts cross-view-consistent future videos for variable sets of cameras.">
 <meta property="og:title" content="ViewDreamer: A Robot World Model beyond Fixed Camera Setups">
 <meta property="og:description" content="One world model for any set of robot cameras: cross-view-consistent multi-view video prediction that transfers to action-conditioned generation and policy learning.">
-<meta property="og:image" content="https://matchlab-imperial.github.io/ViewDreamer/assets/img/teaser.webp">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://matchlab-imperial.github.io/ViewDreamer/">
+<meta property="og:image" content="https://matchlab-imperial.github.io/ViewDreamer/assets/video/presentation.jpg">
+<meta property="og:image:width" content="1920">
+<meta property="og:image:height" content="1080">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="ViewDreamer: A Robot World Model beyond Fixed Camera Setups">
+<meta name="twitter:image" content="https://matchlab-imperial.github.io/ViewDreamer/assets/video/presentation.jpg">
+<meta name="theme-color" content="#ffffff">
 <link rel="canonical" href="https://matchlab-imperial.github.io/ViewDreamer/">
 <meta name="color-scheme" content="light">
 <link rel="icon" type="image/png" href="assets/img/favicon.png">
@@ -129,7 +137,7 @@
       A Cross-View Interaction module after every block is the only path between views, so one model runs on any number of cameras in any order.</p>
 
     <figure class="figure">
-      <img src="assets/img/method.webp" width="2400" height="751" alt="ViewDreamer architecture and the inside of a CVI module" data-zoom>
+      <img src="assets/img/method.webp" loading="lazy" decoding="async" width="2400" height="751" alt="ViewDreamer architecture and the inside of a CVI module" data-zoom>
       <figcaption><b>Overview of ViewDreamer.</b> (a) Shared DiT blocks process each view, and a CVI module after every block is the only cross-view path.
         (b) CVI reads all view tokens into shared slots, mixes the slots over space and time, and writes the result back. CSA aligns the last READ with teacher relations between views.</figcaption>
     </figure>
@@ -137,7 +145,7 @@
     <div class="cards3">
       <div class="mini">
         <h3><span class="mn">1</span>Cross-View Interaction</h3>
-        <p>After every block, <b>READ</b> gathers all views into shared slots, <b>MIX</b> exchanges information across slots and time, and <b>WRITE</b> returns it to each view through a zero-initialized projection.</p>
+        <p>After every block, <b>READ</b> gathers every view into shared slots, <b>MIX</b> passes information across slots and time, and <b>WRITE</b> returns it to each view through a zero-initialized projection.</p>
       </div>
       <div class="mini">
         <h3><span class="mn">2</span>Cross-View Slot Agreement</h3>
@@ -152,8 +160,8 @@
     <h3 class="h3-follow">Slots that agree across views</h3>
     <div class="split">
       <figure class="figure">
-        <img src="assets/img/csa.webp" width="1600" height="882" alt="READ slot assignments with and without CSA" data-zoom>
-        <figcaption>Last-block READ slot assignments (colors matched across rows) on a RoboView-Bench episode.</figcaption>
+        <img src="assets/img/csa.webp" loading="lazy" decoding="async" width="1600" height="882" alt="READ slot assignments with and without CSA" data-zoom>
+        <figcaption>Last-block READ slot assignments on a RoboView-Bench episode. Slot colors are matched across the rows.</figcaption>
       </figure>
       <div>
         <p>Without CSA, the slots only partially group regions such as the basket (dashed) and the gripper (dotted), and the groups stay fragmented.
@@ -173,7 +181,7 @@
         <p>Cross-view consistency and downstream policy success also keep improving as the pretraining data grow.</p>
       </div>
       <figure class="figure">
-        <img src="assets/img/scaling.webp" width="990" height="427" alt="DiT time per sample and data scaling" data-zoom>
+        <img src="assets/img/scaling.webp" loading="lazy" decoding="async" width="990" height="427" alt="DiT time per sample and data scaling" data-zoom>
         <figcaption>(a) DiT GPU time per sample on one B200 (80 forward passes, no VAE). (b) Gains in three- and four-view CVC and LIBERO-Plus success over the nested 25% data subset.</figcaption>
       </figure>
     </div>
@@ -192,7 +200,7 @@
       <div class="tabs" role="tablist" id="episode-tabs"></div>
       <div class="ladder-body">
         <div class="mv-video">
-          <video id="mv-video" muted loop playsinline autoplay preload="auto"></video>
+          <video id="mv-video" muted loop playsinline autoplay preload="metadata"></video>
         </div>
         <p class="label-sm">Instruction</p>
         <div class="instr-row">
@@ -248,7 +256,7 @@
       <figure class="chart-card">
         <div class="cap"><b>Robust to new camera viewpoints</b><span>LIBERO-Plus camera perturbations, success by shift</span></div>
         <p>The gain grows with the camera shift. When the third-person camera orbits by more than 30&deg;, success rises from 24.6% to 44.1%.</p>
-        <img src="assets/img/camera.webp" width="990" height="534" alt="LIBERO-Plus camera breakdown" data-zoom>
+        <img src="assets/img/camera.webp" loading="lazy" decoding="async" width="990" height="534" alt="LIBERO-Plus camera breakdown" data-zoom>
       </figure>
       <figure class="chart-card">
         <div class="cap"><b>Action-conditioned world model</b><span>RoboTwin 2.0, three views, EWMScore (higher is better)</span></div>
@@ -264,12 +272,12 @@
 
     <h3 class="h3-follow">Action-conditioned rollouts</h3>
     <p class="lede">Each AC-WM starts from the real first frame of every view and follows the same recorded action trajectory.
-      The rows compare our AC-WM with Wan2.2-5B and Cosmos3-Nano, each fine-tuned on the same clean RoboTwin 2.0 episodes.</p>
+      Our AC-WM, Wan2.2-5B, and Cosmos3-Nano are all fine-tuned on the same clean RoboTwin 2.0 episodes.</p>
     <div class="ladder wide">
       <div class="tabs" role="tablist" id="ac-tabs" style="grid-template-columns: repeat(4, 1fr)"></div>
       <div class="ladder-body">
         <div class="mv-video">
-          <video id="ac-video" muted loop playsinline autoplay preload="auto"></video>
+          <video id="ac-video" muted loop playsinline autoplay preload="metadata"></video>
         </div>
         <p class="label-sm">Task</p>
         <div class="instr-row">
@@ -294,7 +302,7 @@
 
     <div class="case">
       <div class="case-list" role="tablist" id="robot-tabs"></div>
-      <video id="robot-video" muted loop playsinline autoplay preload="auto"></video>
+      <video id="robot-video" muted loop playsinline autoplay preload="metadata"></video>
       <div class="case-meta"><span>External camera 1</span><span>External camera 2</span><span>Wrist camera</span></div>
       <p class="label-sm">Instruction</p>
       <p class="instr" id="robot-instr"></p>
@@ -312,7 +320,7 @@
     </div>
 
     <figure class="figure" style="margin-top:16px">
-      <img src="assets/img/realrobot.webp" width="2063" height="534" alt="The four real-robot tasks" data-zoom>
+      <img src="assets/img/realrobot.webp" loading="lazy" decoding="async" width="2063" height="534" alt="The four real-robot tasks" data-zoom>
       <figcaption>The four real-robot tasks in the three camera views, each shown at one instant of a teleoperated demonstration.</figcaption>
     </figure>
   </div>
@@ -329,7 +337,8 @@
   title  = {ViewDreamer: A Robot World Model beyond Fixed Camera Setups},
   author = {Mao, Ye and Xiong, Jinhui and Larionov, Egor and Lu, Shiyang
             and Mikolajczyk, Krystian and Ye, Wei},
-  year   = {2026}
+  year   = {2026},
+  url    = {https://matchlab-imperial.github.io/ViewDreamer/}
 }</pre>
     </div>
   </div>
