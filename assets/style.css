@@ -99,9 +99,7 @@ figcaption b { color: var(--ink); }
 .mini { background: #fff; border: 1px solid var(--line); border-radius: var(--radius); padding: 16px 18px; font-size: 14.5px; color: var(--ink-2); line-height: 1.55; }
 .mini .mn { display: inline-flex; align-items: center; justify-content: center; width: 24px; height: 24px; border-radius: 50%; background: var(--ink); color: #fff; font-size: 13px; font-weight: 600; margin-right: 8px; }
 .mini h3 { display: flex; align-items: center; font-size: 16.5px; color: var(--ink); margin: 0 0 8px; }
-.mini p { margin: 0 0 10px; }
-.tags { display: flex; flex-wrap: wrap; gap: 6px; }
-.tag { font-size: 12px; font-weight: 500; color: var(--ink-2); border: 1px solid var(--line-2); border-radius: 999px; padding: 2px 9px; background: #fff; }
+.mini p { margin: 0; }
 .split { display: grid; grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); gap: 28px; align-items: center; }
 .split.rev { grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); }
 .split p { color: var(--ink-2); font-size: 15.5px; margin: 0 0 12px; }
@@ -165,7 +163,7 @@ figcaption b { color: var(--ink); }
 /* charts */
 .chart-grid4 { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px; }
 .chart-grid2 { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 16px; margin-top: 16px; }
-.chart-card { margin: 0; background: #fff; border: 1px solid var(--line); border-radius: var(--radius); padding: 18px 18px 14px; min-width: 0; }
+.chart-card { margin: 0; background: #fff; border: 1px solid var(--line); border-radius: var(--radius); padding: 18px 18px 14px; min-width: 0; display: flex; flex-direction: column; }
 .chart-card .cap { display: flex; flex-direction: column; gap: 2px; margin-bottom: 12px; }
 .chart-card .cap b { font-size: 15px; }
 .chart-card .cap span { color: var(--ink-3); font-size: 13px; }
@@ -266,3 +264,12 @@ figcaption b { color: var(--ink); }
   .footer-inner { flex-wrap: wrap; }
   .footer-logos { margin-left: 0; width: 100%; }
 }
+
+/* 2x2 number grid that fills the rest of its card, so both downstream cards end at the same height */
+.mech4 { flex: 1; grid-auto-rows: 1fr; margin-bottom: 4px; }
+.mech4 .mech-item { display: flex; flex-direction: column; justify-content: center; }
+.chart-card > img { margin-top: auto; }
+
+/* no one- or two-word last lines */
+p, figcaption, li, .lede, .instr, .cite-note { text-wrap: pretty; }
+h1, h2, h3, .stat span, .cap span, .cap b, .mech-item, .tsub, .case-meta span { text-wrap: balance; }

@@ -38,18 +38,18 @@
   <div class="wrap">
     <h1><span class="h1-name">ViewDreamer</span><span class="h1-sub">A Robot World Model beyond Fixed Camera Setups</span></h1>
     <p class="authors">
-      <span><a href="https://openreview.net/profile?id=~Ye_Mao1">Ye Mao</a><sup>1,2,*,†</sup></span>
+      <span><a href="https://openreview.net/profile?id=~Ye_Mao1">Ye Mao</a><sup>1,2,*</sup></span>
       <span><a href="https://openreview.net/profile?id=~Jinhui_Xiong1">Jinhui Xiong</a><sup>1</sup></span>
       <span><a href="https://openreview.net/profile?id=~Egor_Larionov1">Egor Larionov</a><sup>1</sup></span>
       <span><a href="https://openreview.net/profile?id=~Shiyang_Lu2">Shiyang Lu</a><sup>1</sup></span>
       <span><a href="https://openreview.net/profile?id=~Krystian_Mikolajczyk3">Krystian Mikolajczyk</a><sup>2</sup></span>
-      <span><a href="https://openreview.net/profile?id=~Wei_Ye6">Wei Ye</a><sup>1,†</sup></span>
+      <span><a href="https://openreview.net/profile?id=~Wei_Ye6">Wei Ye</a><sup>1</sup></span>
     </p>
     <p class="affils">
       <span><sup>1</sup>Meta AI</span>
       <span><sup>2</sup>Imperial College London</span>
     </p>
-    <p class="equal">*Work done at Meta &nbsp; †Project lead</p>
+    <p class="equal">*Work done at Meta</p>
     <div class="logos">
       <img src="assets/img/logo-meta.png" alt="Meta" class="logo-meta">
       <span class="logo-sep" aria-hidden="true"></span>
@@ -85,8 +85,8 @@
       <div class="stat" role="listitem"><b>2.99M</b><span>multi-view robot video clips for pretraining</span></div>
       <div class="stat" role="listitem"><b>14</b><span>embodiments with different camera rigs</span></div>
       <div class="stat" role="listitem"><b>1&ndash;4</b><span>cameras per sample, in any order</span></div>
-      <div class="stat" role="listitem"><b>500</b><span>held-out RoboView-Bench episodes, three and four views</span></div>
-      <div class="stat" role="listitem"><b>67.5%</b><span>real-robot success of our WAM, vs. 30.0% for FastWAM-Joint</span></div>
+      <div class="stat" role="listitem"><b>500</b><span>held-out RoboView-Bench test episodes</span></div>
+      <div class="stat" role="listitem"><b>67.5%</b><span>average real-robot success of our WAM</span></div>
     </div>
 
     <div class="abstract">
@@ -107,17 +107,17 @@
       <div class="finding">
         <span class="finding-num">&minus;23% FVD</span>
         <h3>Better multi-view video</h3>
-        <p>With three views, FVD drops from 32.93 to 25.41 against Wan2.2-5B fine-tuned on the same data, and cross-view consistency (CVC) rises from 69.3 to 75.7.</p>
+        <p>FVD falls from 32.93 to 25.41 and cross-view consistency rises from 69.3 to 75.7 against Wan2.2-5B fine-tuned on our data.</p>
       </div>
       <div class="finding">
         <span class="finding-num">+19.5 points</span>
         <h3>Robust to new viewpoints</h3>
-        <p>On LIBERO-Plus, when the third-person camera orbits the scene by more than 30&deg;, success rises from 24.6% (FastWAM-Joint) to 44.1%.</p>
+        <p>When the LIBERO-Plus third-person camera orbits the scene by more than 30&deg;, success rises from 24.6% (FastWAM-Joint) to 44.1%.</p>
       </div>
       <div class="finding">
         <span class="finding-num">2.25&times;</span>
         <h3>Stronger real-robot policy</h3>
-        <p>On four Franka tasks, our WAM raises the average success rate from 30.0% to 67.5%, with the largest gain on cubes into cups (20% to 90%).</p>
+        <p>On four Franka tasks, our WAM raises the average success rate from 30.0% to 67.5%, and from 20% to 90% on cubes into cups.</p>
       </div>
     </div>
   </div>
@@ -140,20 +140,15 @@
     <div class="cards3">
       <div class="mini">
         <h3><span class="mn">1</span>Cross-View Interaction</h3>
-        <p>After every pretrained block, <b>READ</b> gathers the patches of all views at each latent frame into shared slots, <b>MIX</b> lets the slots exchange information across space and time,
-          and <b>WRITE</b> returns the result to every view through a zero-initialized projection.</p>
-        <div class="tags"><span class="tag">after every block</span><span class="tag">order-free over views</span><span class="tag">linear in view count</span></div>
+        <p>After every block, <b>READ</b> gathers all views into shared slots, <b>MIX</b> exchanges information across slots and time, and <b>WRITE</b> returns it to each view through a zero-initialized projection.</p>
       </div>
       <div class="mini">
         <h3><span class="mn">2</span>Cross-View Slot Agreement</h3>
-        <p>A frozen teacher built from DINOv2 and VGGT-&Omega; links geometrically and semantically similar regions across views.
-          CSA trains the last READ attention so that linked patches share a slot.</p>
-        <div class="tags"><span class="tag">training only</span><span class="tag">no parameters at inference</span></div>
+        <p>A frozen teacher built from DINOv2 and VGGT-&Omega; links geometrically and semantically similar regions across views. CSA trains the last <b>READ</b> attention so that linked patches share a slot.</p>
       </div>
       <div class="mini">
         <h3><span class="mn">3</span>View-Count Curriculum</h3>
-        <p>Training starts from single views and gradually adds views, so cross-view interaction grows out of the pretrained single-view solution instead of disturbing it.</p>
-        <div class="tags"><span class="tag">single view &rarr; multi-view</span><span class="tag">stable training</span></div>
+        <p>Training starts from single views and gradually adds more views. Cross-view interaction thus grows out of the pretrained single-view model instead of disturbing it, which stabilizes training.</p>
       </div>
     </div>
 
@@ -261,25 +256,47 @@
     <div class="chart-grid2">
       <figure class="chart-card">
         <div class="cap"><b>Robust to new camera viewpoints</b><span>LIBERO-Plus camera perturbations, success by shift</span></div>
-        <p>The gain grows with the camera shift. When the third-person camera orbits the scene by more than 30&deg;, success rises from 24.6% to 44.1%.</p>
+        <p>The gain grows with the camera shift. When the third-person camera orbits by more than 30&deg;, success rises from 24.6% to 44.1%.</p>
         <img src="assets/img/camera.webp" width="990" height="534" alt="LIBERO-Plus camera breakdown" data-zoom>
       </figure>
       <figure class="chart-card">
         <div class="cap"><b>Action-conditioned world model</b><span>RoboTwin 2.0, three views, EWMScore (higher is better)</span></div>
-        <p>Fine-tuned to follow recorded action trajectories, our AC-WM achieves the highest EWMScore in clean scenes and under randomization, where its lead grows.</p>
-        <div class="mech">
-          <div class="mech-item"><b>50.09</b>clean scenes; best baseline 49.45</div>
-          <div class="mech-item"><b>46.99</b>randomized scenes; best baseline 43.08</div>
+        <p>Fine-tuned to follow recorded action trajectories, our AC-WM achieves the highest EWMScore in both clean and randomized scenes.</p>
+        <div class="mech mech4">
+          <div class="mech-item"><b>50.09</b>clean; best baseline 49.45</div>
+          <div class="mech-item"><b>46.99</b>randomized; best baseline 43.08</div>
+          <div class="mech-item"><b>3.91</b>lead over Wan2.2-5B in randomized scenes, up from 1.76</div>
+          <div class="mech-item"><b>&minus;3.10</b>drop from clean to randomized scenes; Wan2.2-5B &minus;5.25</div>
         </div>
-        <p style="margin:0">Under randomization, Wan2.2-5B blurs, Cosmos3-Nano washes out the wrist views, and our AC-WM keeps the wrist views sharp.</p>
       </figure>
     </div>
 
-    <figure class="figure" style="margin-top:16px">
-      <img src="assets/img/acwm.webp" width="2063" height="1512" alt="Action-conditioned generation on RoboTwin 2.0" data-zoom>
-      <figcaption><b>Action-conditioned video generation on RoboTwin 2.0.</b> (a) A held-out clean episode (stack two blocks). (b) A randomized episode (pick up two bottles).
-        All models start from the real first frame of each view and follow the same recorded trajectory. Our AC-WM is outlined in blue.</figcaption>
-    </figure>
+    <h3 class="h3-follow">Action-conditioned rollouts</h3>
+    <p class="lede">Each AC-WM starts from the real first frame of every view and follows the same recorded action trajectory.
+      The rows compare our AC-WM with Wan2.2-5B and Cosmos3-Nano, each fine-tuned on the same clean RoboTwin 2.0 episodes.</p>
+    <div class="ladder">
+      <div class="tabs" role="tablist" id="ac-tabs" style="grid-template-columns: repeat(4, 1fr)"></div>
+      <div class="ladder-body">
+        <div class="mv-grid">
+          <div></div>
+          <div class="mv-colheads" id="ac-colheads"></div>
+          <div class="mv-rowheads" id="ac-rowheads"></div>
+          <div class="mv-video">
+            <video id="ac-video" muted loop playsinline autoplay preload="auto"></video>
+            <div class="hl"></div>
+          </div>
+        </div>
+        <p class="label-sm">Instruction</p>
+        <div class="instr-row">
+          <p class="instr" id="ac-instr"></p>
+          <div class="ctrl">
+            <button class="pill" id="ac-play" type="button">Pause</button>
+            <button class="pill" id="ac-slow" type="button">0.5&times; speed</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <p class="viewer-hint">Held-out clean RoboTwin 2.0 episodes at 25 FPS, three views each.</p>
   </div>
 </section>
 
