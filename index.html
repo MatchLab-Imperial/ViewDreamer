@@ -59,12 +59,9 @@
       <a class="btn" href="assets/paper.pdf">
         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 2h9l5 5v15H6z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M14 2v6h6M9 13h8M9 17h8" fill="none" stroke="currentColor" stroke-width="1.8"/></svg>
         Paper</a>
-      <span class="btn btn-disabled" aria-disabled="true" title="Coming soon">
+      <a class="btn" href="https://github.com/MatchLab-Imperial/ViewDreamer">
         <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 .5a11.5 11.5 0 0 0-3.6 22.4c.6.1.8-.3.8-.6v-2c-3.2.7-3.9-1.5-3.9-1.5-.5-1.3-1.3-1.7-1.3-1.7-1-.7.1-.7.1-.7 1.2.1 1.8 1.2 1.8 1.2 1 1.8 2.8 1.3 3.5 1 .1-.8.4-1.3.7-1.6-2.6-.3-5.3-1.3-5.3-5.7 0-1.3.5-2.3 1.2-3.1-.1-.3-.5-1.5.1-3.1 0 0 1-.3 3.2 1.2a11 11 0 0 1 5.8 0c2.2-1.5 3.2-1.2 3.2-1.2.6 1.6.2 2.8.1 3.1.8.8 1.2 1.8 1.2 3.1 0 4.4-2.7 5.4-5.3 5.7.4.4.8 1.1.8 2.2v3.3c0 .3.2.7.8.6A11.5 11.5 0 0 0 12 .5Z"/></svg>
-        Code <small>Coming soon</small></span>
-      <span class="btn btn-disabled" aria-disabled="true" title="Coming soon">
-        <svg viewBox="0 0 24 24" aria-hidden="true"><ellipse cx="12" cy="5.5" rx="8" ry="3" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M4 5.5v13c0 1.7 3.6 3 8 3s8-1.3 8-3v-13M4 12c0 1.7 3.6 3 8 3s8-1.3 8-3" fill="none" stroke="currentColor" stroke-width="1.8"/></svg>
-        Dataset <small>Coming soon</small></span>
+        Code</a>
       <a class="btn" href="#benchmark">
         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
         Results</a>
@@ -189,19 +186,13 @@
     <p class="kicker">Multi-view generation</p>
     <h2>Consistent futures across every camera</h2>
     <p class="lede">Given the first frame of every view and a task instruction, ViewDreamer predicts five seconds of future video for all cameras.
-      Each row is one method and each column one camera. ViewDreamer is outlined in blue.</p>
+      Each block shows one method across all cameras, and ViewDreamer is outlined in blue.</p>
 
-    <div class="ladder">
+    <div class="ladder wide">
       <div class="tabs" role="tablist" id="episode-tabs"></div>
       <div class="ladder-body">
-        <div class="mv-grid">
-          <div></div>
-          <div class="mv-colheads" id="mv-colheads"></div>
-          <div class="mv-rowheads" id="mv-rowheads"></div>
-          <div class="mv-video">
-            <video id="mv-video" muted loop playsinline autoplay preload="auto"></video>
-            <div class="hl"></div>
-          </div>
+        <div class="mv-video">
+          <video id="mv-video" muted loop playsinline autoplay preload="auto"></video>
         </div>
         <p class="label-sm">Instruction</p>
         <div class="instr-row">
@@ -274,19 +265,13 @@
     <h3 class="h3-follow">Action-conditioned rollouts</h3>
     <p class="lede">Each AC-WM starts from the real first frame of every view and follows the same recorded action trajectory.
       The rows compare our AC-WM with Wan2.2-5B and Cosmos3-Nano, each fine-tuned on the same clean RoboTwin 2.0 episodes.</p>
-    <div class="ladder">
+    <div class="ladder wide">
       <div class="tabs" role="tablist" id="ac-tabs" style="grid-template-columns: repeat(4, 1fr)"></div>
       <div class="ladder-body">
-        <div class="mv-grid">
-          <div></div>
-          <div class="mv-colheads" id="ac-colheads"></div>
-          <div class="mv-rowheads" id="ac-rowheads"></div>
-          <div class="mv-video">
-            <video id="ac-video" muted loop playsinline autoplay preload="auto"></video>
-            <div class="hl"></div>
-          </div>
+        <div class="mv-video">
+          <video id="ac-video" muted loop playsinline autoplay preload="auto"></video>
         </div>
-        <p class="label-sm">Instruction</p>
+        <p class="label-sm">Task</p>
         <div class="instr-row">
           <p class="instr" id="ac-instr"></p>
           <div class="ctrl">

@@ -273,3 +273,13 @@ figcaption b { color: var(--ink); }
 /* no one- or two-word last lines */
 p, figcaption, li, .lede, .instr, .cite-note { text-wrap: pretty; }
 h1, h2, h3, .stat span, .cap span, .cap b, .mech-item, .tsub, .case-meta span { text-wrap: balance; }
+
+/* 2x2 comparison players: wider than the text column */
+.ladder.wide { width: min(1320px, calc(100vw - 32px)); margin-left: calc((100% - min(1320px, calc(100vw - 32px))) / 2); }
+.ladder.wide .mv-video { border-radius: 6px; background: #fff; }
+.ladder.wide .mv-video video { display: block; }
+
+/* justified body text */
+.sec p:not(.kicker):not(.viewer-hint):not(.label-sm):not(.instr):not(.equal), .sec figcaption, .chart-card p, .mini p, .finding p {
+  text-align: justify; hyphens: auto; -webkit-hyphens: auto;
+}

@@ -3,10 +3,10 @@
 
   const METHODS = ['Ground truth', 'ViewDreamer', 'Wan2.2-5B (FT)', 'Cosmos3-Nano'];
   const AC_EPISODES = [
-    { id: 'acwm_roller', label: 'Grab the roller', split: 'clean', instruction: 'Securely grab the cylindrical roller with tapered ends using both arms.' },
-    { id: 'acwm_can_pot', label: 'Can beside the pot', split: 'clean', instruction: 'Place the small metal sauce container next to the pot with round lid.' },
-    { id: 'acwm_hammer', label: 'Hammer the block', split: 'clean', instruction: 'Pick the grippy handle hammer and smash the block.' },
-    { id: 'acwm_bottle', label: 'Pick up a bottle', split: 'clean', instruction: 'Grab the plastic bottle with bright red color and pick up the plastic bottle.' },
+    { id: 'acwm_stack', label: 'Stack two blocks', task: 'stack_blocks_two' },
+    { id: 'acwm_bottle', label: 'Pick up a bottle', task: 'pick_diverse_bottles' },
+    { id: 'acwm_shake', label: 'Shake a bottle', task: 'shake_bottle' },
+    { id: 'acwm_hammer', label: 'Hammer the block', task: 'beat_block_hammer' },
   ];
   const EPISODES = [
     { id: "thermos", label: "Pour from the thermos", views: ["Head", "Chest", "Left wrist"], robot: "AlphaBot 2",
@@ -89,20 +89,10 @@
   // ---------------- multi-view viewer ----------------
   const tabs = $('#episode-tabs');
   const video = $('#mv-video');
-  const colheads = $('#mv-colheads');
-  const rowheads = $('#mv-rowheads');
   let slow = false;
-  METHODS.forEach((m, i) => {
-    const d = document.createElement('div');
-    d.textContent = m;
-    if (i === 1) d.className = 'ours';
-    rowheads.appendChild(d);
-  });
   function showEpisode(i) {
     const ep = EPISODES[i];
     $$('.tab', tabs).forEach((t, j) => t.setAttribute('aria-selected', j === i ? 'true' : 'false'));
-    colheads.style.setProperty('--cols', ep.views.length);
-    colheads.innerHTML = ep.views.map((v) => `<div>${v}</div>`).join('');
     video.poster = `assets/video/${ep.id}.jpg`;
     video.src = `assets/video/${ep.id}.mp4`;
     delete video.dataset.userPaused;
@@ -138,14 +128,6 @@
     const acTabs = $('#ac-tabs');
     if (!acTabs || !AC_EPISODES.length) return;
     const acVideo = $('#ac-video');
-    ['Ground truth', 'Our AC-WM', 'Wan2.2-5B', 'Cosmos3-Nano'].forEach((m, i) => {
-      const d = document.createElement('div');
-      d.textContent = m;
-      if (i === 1) d.className = 'ours';
-      $('#ac-rowheads').appendChild(d);
-    });
-    $('#ac-colheads').style.setProperty('--cols', 3);
-    $('#ac-colheads').innerHTML = ['Head', 'Left wrist', 'Right wrist'].map((v) => `<div>${v}</div>`).join('');
     let acSlow = false;
     function show(i) {
       const ep = AC_EPISODES[i];
@@ -155,14 +137,14 @@
       delete acVideo.dataset.userPaused;
       $('#ac-play').textContent = 'Pause';
       acVideo.play().catch(() => {});
-      $('#ac-instr').innerHTML = `\u201c${ep.instruction}\u201d<span class="src">RoboTwin 2.0, ${ep.split} scene</span>`;
+      $('#ac-instr').innerHTML = `${ep.label}<span class="src">RoboTwin 2.0 task ${ep.task}, clean scene, recorded actions as input</span>`;
     }
     AC_EPISODES.forEach((ep, i) => {
       const b = document.createElement('button');
       b.className = 'tab';
       b.type = 'button';
       b.setAttribute('role', 'tab');
-      b.innerHTML = `<span>${ep.label}</span><span class="tsub">${ep.split} scene</span>`;
+      b.innerHTML = `<span>${ep.label}</span><span class="tsub">clean scene</span>`;
       b.addEventListener('click', () => show(i));
       acTabs.appendChild(b);
     });
