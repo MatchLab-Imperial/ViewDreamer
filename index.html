@@ -1,0 +1,349 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ViewDreamer: A Robot World Model beyond Fixed Camera Setups</title>
+<meta name="description" content="ViewDreamer is a single robot world model that predicts cross-view-consistent future videos for variable sets of cameras.">
+<meta property="og:title" content="ViewDreamer: A Robot World Model beyond Fixed Camera Setups">
+<meta property="og:description" content="One world model for any set of robot cameras: cross-view-consistent multi-view video prediction that transfers to action-conditioned generation and policy learning.">
+<meta property="og:image" content="https://matchlab-imperial.github.io/ViewDreamer/assets/img/teaser.webp">
+<link rel="canonical" href="https://matchlab-imperial.github.io/ViewDreamer/">
+<meta name="color-scheme" content="light">
+<link rel="icon" type="image/png" href="assets/img/favicon.png">
+<link rel="stylesheet" href="assets/fonts.css">
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+
+<header class="topbar">
+  <div class="topbar-inner">
+    <a class="brand" href="#top" aria-label="ViewDreamer home"><img src="assets/img/mark.webp" alt="">ViewDreamer</a>
+    <nav class="toplinks" aria-label="Sections">
+      <a href="#method">Method</a>
+      <a href="#generation">Generation</a>
+      <a href="#benchmark">Benchmark</a>
+      <a href="#downstream">Downstream</a>
+      <a href="#robot">Real robot</a>
+      <a href="#cite">Cite</a>
+    </nav>
+    <a class="toplink-cta" href="assets/paper.pdf">Paper</a>
+  </div>
+</header>
+
+<main id="top">
+
+<!-- ============================================================ HERO -->
+<section class="hero">
+  <div class="wrap">
+    <h1><span class="h1-name">ViewDreamer</span><span class="h1-sub">A Robot World Model beyond Fixed Camera Setups</span></h1>
+    <p class="authors">
+      <span><a href="https://openreview.net/profile?id=~Ye_Mao1">Ye Mao</a><sup>1,2,*,†</sup></span>
+      <span><a href="https://openreview.net/profile?id=~Jinhui_Xiong1">Jinhui Xiong</a><sup>1</sup></span>
+      <span><a href="https://openreview.net/profile?id=~Egor_Larionov1">Egor Larionov</a><sup>1</sup></span>
+      <span><a href="https://openreview.net/profile?id=~Shiyang_Lu2">Shiyang Lu</a><sup>1</sup></span>
+      <span><a href="https://openreview.net/profile?id=~Krystian_Mikolajczyk3">Krystian Mikolajczyk</a><sup>2</sup></span>
+      <span><a href="https://openreview.net/profile?id=~Wei_Ye6">Wei Ye</a><sup>1,†</sup></span>
+    </p>
+    <p class="affils">
+      <span><sup>1</sup>Meta AI</span>
+      <span><sup>2</sup>Imperial College London</span>
+    </p>
+    <p class="equal">*Work done at Meta &nbsp; †Project lead</p>
+    <div class="logos">
+      <img src="assets/img/logo-meta.png" alt="Meta" class="logo-meta">
+      <span class="logo-sep" aria-hidden="true"></span>
+      <img src="assets/img/logo-imperial.png" alt="Imperial College London" class="logo-imperial">
+    </div>
+    <div class="buttons">
+      <a class="btn" href="assets/paper.pdf">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 2h9l5 5v15H6z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M14 2v6h6M9 13h8M9 17h8" fill="none" stroke="currentColor" stroke-width="1.8"/></svg>
+        Paper</a>
+      <span class="btn btn-disabled" aria-disabled="true" title="Coming soon">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 .5a11.5 11.5 0 0 0-3.6 22.4c.6.1.8-.3.8-.6v-2c-3.2.7-3.9-1.5-3.9-1.5-.5-1.3-1.3-1.7-1.3-1.7-1-.7.1-.7.1-.7 1.2.1 1.8 1.2 1.8 1.2 1 1.8 2.8 1.3 3.5 1 .1-.8.4-1.3.7-1.6-2.6-.3-5.3-1.3-5.3-5.7 0-1.3.5-2.3 1.2-3.1-.1-.3-.5-1.5.1-3.1 0 0 1-.3 3.2 1.2a11 11 0 0 1 5.8 0c2.2-1.5 3.2-1.2 3.2-1.2.6 1.6.2 2.8.1 3.1.8.8 1.2 1.8 1.2 3.1 0 4.4-2.7 5.4-5.3 5.7.4.4.8 1.1.8 2.2v3.3c0 .3.2.7.8.6A11.5 11.5 0 0 0 12 .5Z"/></svg>
+        Code <small>Coming soon</small></span>
+      <span class="btn btn-disabled" aria-disabled="true" title="Coming soon">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><ellipse cx="12" cy="5.5" rx="8" ry="3" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M4 5.5v13c0 1.7 3.6 3 8 3s8-1.3 8-3v-13M4 12c0 1.7 3.6 3 8 3s8-1.3 8-3" fill="none" stroke="currentColor" stroke-width="1.8"/></svg>
+        Dataset <small>Coming soon</small></span>
+      <a class="btn" href="#benchmark">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+        Results</a>
+      <a class="btn" href="#cite">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 7h4v4H7zM7 11c0 3-1 5-3 6M15 7h4v4h-4zM15 11c0 3-1 5-3 6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg>
+        BibTeX</a>
+    </div>
+    <figure class="teaser">
+      <video class="pres" src="assets/video/presentation.mp4" poster="assets/video/presentation.jpg" controls muted autoplay loop playsinline preload="metadata" aria-label="ViewDreamer overview video"></video>
+    </figure>
+  </div>
+</section>
+
+<!-- ============================================================ AT A GLANCE -->
+<section class="glance">
+  <div class="wrap">
+    <div class="stats" role="list">
+      <div class="stat" role="listitem"><b>2.99M</b><span>multi-view robot video clips for pretraining</span></div>
+      <div class="stat" role="listitem"><b>14</b><span>embodiments with different camera rigs</span></div>
+      <div class="stat" role="listitem"><b>1&ndash;4</b><span>cameras per sample, in any order</span></div>
+      <div class="stat" role="listitem"><b>500</b><span>held-out RoboView-Bench episodes, three and four views</span></div>
+      <div class="stat" role="listitem"><b>67.5%</b><span>real-robot success of our WAM, vs. 30.0% for FastWAM-Joint</span></div>
+    </div>
+
+    <div class="abstract">
+      <h2 class="eyebrow-h">Abstract</h2>
+      <p>Video generation models are increasingly important for robot learning, yet most generate each camera view separately or tile all views in a fixed layout.
+        Robot demonstrations, however, are captured by synchronized cameras whose number, placement, and order vary across embodiments.
+        We present ViewDreamer, a single world model that handles variable sets of cameras by disentangling per-view generation from cross-view interaction.
+        Each view follows the generation path of a pretrained single-view model, and views interact only through shared slot tokens.
+        We stabilize multi-view training with a curriculum that gradually increases the number of views.
+        Cross-View Slot Agreement uses visual foundation models to group geometrically and semantically similar regions across views into shared slots.
+        On RoboView-Bench, which covers one to four cameras, ViewDreamer achieves the best generation quality among the models evaluated and improves cross-view consistency over independent per-view generation.
+        These gains carry over to our world-action model (WAM) and action-conditioned world model (AC-WM).
+        Our WAM outperforms the FastWAM-Joint baseline on LIBERO-Plus, RoboTwin 2.0, and RoboDojo, and on a real Franka robot.
+        Both variants improve out-of-domain generalization to various camera settings and scenes.</p>
+    </div>
+
+    <div class="findings">
+      <div class="finding">
+        <span class="finding-num">&minus;23% FVD</span>
+        <h3>Better multi-view video</h3>
+        <p>With three views, FVD drops from 32.93 to 25.41 against Wan2.2-5B fine-tuned on the same data, and cross-view consistency (CVC) rises from 69.3 to 75.7.</p>
+      </div>
+      <div class="finding">
+        <span class="finding-num">+19.5 points</span>
+        <h3>Robust to new viewpoints</h3>
+        <p>On LIBERO-Plus, when the third-person camera orbits the scene by more than 30&deg;, success rises from 24.6% (FastWAM-Joint) to 44.1%.</p>
+      </div>
+      <div class="finding">
+        <span class="finding-num">2.25&times;</span>
+        <h3>Stronger real-robot policy</h3>
+        <p>On four Franka tasks, our WAM raises the average success rate from 30.0% to 67.5%, with the largest gain on cubes into cups (20% to 90%).</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ METHOD -->
+<section class="sec sec-alt" id="method">
+  <div class="wrap">
+    <p class="kicker">Method</p>
+    <h2>Per-view generation, shared cross-view interaction</h2>
+    <p class="lede">Every view keeps the generation path of the pretrained single-view video model (Wan2.2-TI2V-5B).
+      A Cross-View Interaction module after every block is the only path between views, so one model runs on any number of cameras in any order.</p>
+
+    <figure class="figure">
+      <img src="assets/img/method.webp" width="2400" height="751" alt="ViewDreamer architecture and the inside of a CVI module" data-zoom>
+      <figcaption><b>Overview of ViewDreamer.</b> (a) Shared DiT blocks process each view, and a CVI module after every block is the only cross-view path.
+        (b) CVI reads all view tokens into shared slots, mixes the slots over space and time, and writes the result back. CSA aligns the last READ with teacher relations between views.</figcaption>
+    </figure>
+
+    <div class="cards3">
+      <div class="mini">
+        <h3><span class="mn">1</span>Cross-View Interaction</h3>
+        <p>After every pretrained block, <b>READ</b> gathers the patches of all views at each latent frame into shared slots, <b>MIX</b> lets the slots exchange information across space and time,
+          and <b>WRITE</b> returns the result to every view through a zero-initialized projection.</p>
+        <div class="tags"><span class="tag">after every block</span><span class="tag">order-free over views</span><span class="tag">linear in view count</span></div>
+      </div>
+      <div class="mini">
+        <h3><span class="mn">2</span>Cross-View Slot Agreement</h3>
+        <p>A frozen teacher built from DINOv2 and VGGT-&Omega; links geometrically and semantically similar regions across views.
+          CSA trains the last READ attention so that linked patches share a slot.</p>
+        <div class="tags"><span class="tag">training only</span><span class="tag">no parameters at inference</span></div>
+      </div>
+      <div class="mini">
+        <h3><span class="mn">3</span>View-Count Curriculum</h3>
+        <p>Training starts from single views and gradually adds views, so cross-view interaction grows out of the pretrained single-view solution instead of disturbing it.</p>
+        <div class="tags"><span class="tag">single view &rarr; multi-view</span><span class="tag">stable training</span></div>
+      </div>
+    </div>
+
+    <h3 class="h3-follow">Slots that agree across views</h3>
+    <div class="split">
+      <figure class="figure">
+        <img src="assets/img/csa.webp" width="1600" height="882" alt="READ slot assignments with and without CSA" data-zoom>
+        <figcaption>Last-block READ slot assignments (colors matched across rows) on a RoboView-Bench episode.</figcaption>
+      </figure>
+      <div>
+        <p>Without CSA, the slots only partially group regions such as the basket (dashed) and the gripper (dotted), and the groups stay fragmented.
+          With CSA, the same region seen by different cameras falls into the same slot.</p>
+        <ul class="points">
+          <li>Teacher relations combine <b>DINOv2</b> semantics and <b>VGGT-&Omega;</b> geometry and are computed offline.</li>
+          <li>The agreement loss only shapes the last READ attention and is dropped at inference.</li>
+        </ul>
+      </div>
+    </div>
+
+    <h3 class="h3-follow">Scales with the number of cameras</h3>
+    <div class="split rev">
+      <div>
+        <p>From three to eight views, DiT time per sample grows from 38.5&nbsp;s to 104&nbsp;s with CVI, but from 52.5&nbsp;s to 263&nbsp;s with full cross-view attention.
+          Each extra view adds a nearly constant 13&nbsp;s with CVI.</p>
+        <p>Cross-view consistency and downstream policy success also keep improving as the pretraining data grow.</p>
+      </div>
+      <figure class="figure">
+        <img src="assets/img/scaling.webp" width="990" height="427" alt="DiT time per sample and data scaling" data-zoom>
+        <figcaption>(a) DiT GPU time per sample on one B200 (80 forward passes, no VAE). (b) Gains in three- and four-view CVC and LIBERO-Plus success over the nested 25% data subset.</figcaption>
+      </figure>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ GENERATION -->
+<section class="sec" id="generation">
+  <div class="wrap">
+    <p class="kicker">Multi-view generation</p>
+    <h2>Consistent futures across every camera</h2>
+    <p class="lede">Given the first frame of every view and a task instruction, ViewDreamer predicts five seconds of future video for all cameras.
+      Each row is one method and each column one camera. ViewDreamer is outlined in blue.</p>
+
+    <div class="ladder">
+      <div class="tabs" role="tablist" id="episode-tabs"></div>
+      <div class="ladder-body">
+        <div class="mv-grid">
+          <div></div>
+          <div class="mv-colheads" id="mv-colheads"></div>
+          <div class="mv-rowheads" id="mv-rowheads"></div>
+          <div class="mv-video">
+            <video id="mv-video" muted loop playsinline autoplay preload="auto"></video>
+            <div class="hl"></div>
+          </div>
+        </div>
+        <p class="label-sm">Instruction</p>
+        <div class="instr-row">
+          <p class="instr" id="mv-instr"></p>
+          <div class="ctrl">
+            <button class="pill" id="mv-play" type="button">Pause</button>
+            <button class="pill" id="mv-slow" type="button">0.5&times; speed</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <p class="viewer-hint">RoboView-Bench episodes from RoboCOIN, 81 frames at 16 FPS. Four-view episodes are out of distribution: training never sees four views.</p>
+  </div>
+</section>
+
+<!-- ============================================================ BENCHMARK -->
+<section class="sec sec-alt" id="benchmark">
+  <div class="wrap">
+    <p class="kicker">RoboView-Bench</p>
+    <h2>Best generation quality among the models evaluated</h2>
+    <p class="lede">500 held-out episodes with three and four cameras. Wan2.2-5B (FT) is fine-tuned on the same data as ViewDreamer and generates each view independently; the other baselines run zero-shot.
+      CVC measures cross-view consistency between the generated views.</p>
+    <div class="chips" id="table-tabs">
+      <button class="chip" aria-pressed="true" data-prof="3" type="button">3 views</button>
+      <button class="chip" aria-pressed="false" data-prof="4" type="button">4 views<span class="n">unseen in training</span></button>
+    </div>
+    <div class="table-wrap">
+      <table class="lb" id="bench-table">
+        <thead><tr><th>Method</th><th>SSIM &uarr;</th><th>LPIPS &darr;</th><th>FID &darr;</th><th>FVD &darr;</th><th>CVC &uarr;</th></tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+    <p class="note">Best value per column in bold.</p>
+  </div>
+</section>
+
+<!-- ============================================================ DOWNSTREAM -->
+<section class="sec" id="downstream">
+  <div class="wrap">
+    <p class="kicker">Downstream transfer</p>
+    <h2>A better prior for robot learning</h2>
+    <p class="lede">Our world-action model (WAM) adds CVI to FastWAM-Joint and initializes its video network from ViewDreamer.
+      With the same data and recipe, it improves success in simulation and on a real Franka robot, with the largest gains out of domain.</p>
+
+    <div class="chart-legend">
+      <span><i class="sw" style="background:var(--m0)"></i>FastWAM</span>
+      <span><i class="sw" style="background:var(--m1)"></i>FastWAM-Joint</span>
+      <span><i class="sw" style="background:var(--brand)"></i>Ours</span>
+    </div>
+    <div class="chart-grid4" id="bench-bars"></div>
+
+    <div class="chart-grid2">
+      <figure class="chart-card">
+        <div class="cap"><b>Robust to new camera viewpoints</b><span>LIBERO-Plus camera perturbations, success by shift</span></div>
+        <p>The gain grows with the camera shift. When the third-person camera orbits the scene by more than 30&deg;, success rises from 24.6% to 44.1%.</p>
+        <img src="assets/img/camera.webp" width="990" height="534" alt="LIBERO-Plus camera breakdown" data-zoom>
+      </figure>
+      <figure class="chart-card">
+        <div class="cap"><b>Action-conditioned world model</b><span>RoboTwin 2.0, three views, EWMScore (higher is better)</span></div>
+        <p>Fine-tuned to follow recorded action trajectories, our AC-WM achieves the highest EWMScore in clean scenes and under randomization, where its lead grows.</p>
+        <div class="mech">
+          <div class="mech-item"><b>50.09</b>clean scenes; best baseline 49.45</div>
+          <div class="mech-item"><b>46.99</b>randomized scenes; best baseline 43.08</div>
+        </div>
+        <p style="margin:0">Under randomization, Wan2.2-5B blurs, Cosmos3-Nano washes out the wrist views, and our AC-WM keeps the wrist views sharp.</p>
+      </figure>
+    </div>
+
+    <figure class="figure" style="margin-top:16px">
+      <img src="assets/img/acwm.webp" width="2063" height="1512" alt="Action-conditioned generation on RoboTwin 2.0" data-zoom>
+      <figcaption><b>Action-conditioned video generation on RoboTwin 2.0.</b> (a) A held-out clean episode (stack two blocks). (b) A randomized episode (pick up two bottles).
+        All models start from the real first frame of each view and follow the same recorded trajectory. Our AC-WM is outlined in blue.</figcaption>
+    </figure>
+  </div>
+</section>
+
+<!-- ============================================================ REAL ROBOT -->
+<section class="sec sec-alt" id="robot">
+  <div class="wrap">
+    <p class="kicker">Real robot</p>
+    <h2>Rollouts on a real Franka</h2>
+    <p class="lede">A Franka FR3 in the DROID setup with two external cameras and one wrist camera. Each policy learns four tasks from 200 teleoperated demonstrations, and we run 10 trials per task.</p>
+
+    <div class="case">
+      <div class="case-list" role="tablist" id="robot-tabs"></div>
+      <video id="robot-video" muted loop playsinline autoplay preload="auto"></video>
+      <div class="case-meta"><span>External camera 1</span><span>External camera 2</span><span>Wrist camera</span></div>
+      <p class="label-sm">Instruction</p>
+      <p class="instr" id="robot-instr"></p>
+    </div>
+
+    <div class="table-wrap" style="margin-top:16px">
+      <table class="lb">
+        <thead><tr><th>Success rate (%)</th><th>Cup into box</th><th>Cubes into cups</th><th>Stack cups</th><th>Stack cubes</th><th>Average</th></tr></thead>
+        <tbody>
+          <tr><td>FastWAM</td><td>40</td><td>30</td><td>10</td><td>20</td><td>25.0</td></tr>
+          <tr><td>FastWAM-Joint</td><td>60</td><td>20</td><td>10</td><td>30</td><td>30.0</td></tr>
+          <tr class="ours"><td>Ours</td><td class="best">80</td><td class="best">90</td><td class="best">40</td><td class="best">60</td><td class="best">67.5</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <figure class="figure" style="margin-top:16px">
+      <img src="assets/img/realrobot.webp" width="2063" height="534" alt="The four real-robot tasks" data-zoom>
+      <figcaption>The four real-robot tasks in the three camera views, each shown at one instant of a teleoperated demonstration.</figcaption>
+    </figure>
+  </div>
+</section>
+
+<!-- ============================================================ CITE -->
+<section class="sec" id="cite">
+  <div class="wrap">
+    <p class="kicker">Citation</p>
+    <h2>BibTeX</h2>
+    <div class="code-card" style="margin-top:20px">
+      <button class="copy" id="copy-bib" type="button">Copy</button>
+<pre id="bib-text">@misc{mao2026viewdreamer,
+  title  = {ViewDreamer: A Robot World Model beyond Fixed Camera Setups},
+  author = {Mao, Ye and Xiong, Jinhui and Larionov, Egor and Lu, Shiyang
+            and Mikolajczyk, Krystian and Ye, Wei},
+  year   = {2026}
+}</pre>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<footer class="footer">
+  <div class="wrap footer-inner">
+    <img src="assets/img/mark.webp" alt="">
+    <p>&copy; 2026 the ViewDreamer authors. Correspondence: ye.mao21@imperial.ac.uk, weiye@meta.com.</p>
+    <div class="footer-logos"><img src="assets/img/logo-meta.png" alt="Meta" class="logo-meta"><img src="assets/img/logo-imperial.png" alt="Imperial College London" class="logo-imperial"></div>
+  </div>
+</footer>
+
+<div class="lightbox" id="lightbox"><img alt=""></div>
+<script src="assets/script.js"></script>
+</body>
+</html>
