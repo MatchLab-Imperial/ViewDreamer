@@ -247,37 +247,131 @@
   document.addEventListener('keydown', (e) => { if (e.key === 'Escape') lb.classList.remove('open'); });
 })();
 
-// Keep at least three words on the last line of every text block: bind the last three
-// words with no-break spaces (skipped when they are long, e.g. e-mail addresses).
-(function widont() {
-  const blocks = document.querySelectorAll('.sec p, .sec figcaption, .sec li');
-  blocks.forEach((el) => {
-    const disp = getComputedStyle(el).display;
-    if (disp.includes('flex') || disp.includes('grid')) return;
-    const texts = [];
-    const walker = document.createTreeWalker(el, NodeFilter.SHOW_TEXT);
-    let n;
-    while ((n = walker.nextNode())) texts.push(n);
-    const full = texts.map((t) => t.textContent).join('').trim();
-    const words = full.split(/\s+/);
-    if (words.length < 6 || words.slice(-3).join(' ').length > 34) return;
-    let need = 2;
-    for (let i = texts.length - 1; i >= 0 && need > 0; i--) {
-      let s = texts[i].textContent;
-      let end = s.length;
-      if (i === texts.length - 1) end = s.replace(/\s+$/, '').length;
-      for (let k = end - 1; k >= 0 && need > 0; k--) {
-        if (/\s/.test(s[k])) {
-          let j = k;
-          while (j > 0 && /\s/.test(s[j - 1])) j--;
-          s = s.slice(0, j) + '\u00a0' + s.slice(k + 1);
-          k = j;
-          need--;
+// Justified text that never shows big word gaps or a one- or two-word last line.
+// Browsers break lines greedily, so for every justified block we measure the real layout (this browser,
+// this width, this zoom, with or without hyphenation) and, if a line would be stretched too far or the
+// last line would be short, try a few imperceptible spacing tweaks (like LaTeX's microtype) and an
+// unbreakable last three words. A block that still does not fit is set ragged-right.
+(function fitText() {
+  const SEL = '.sec p, .sec figcaption, .sec li, .abstract p';
+  const MAX_STRETCH = 0.55;                 // a justified space may grow to 1.55x its natural width
+  const LETTER = [0, -0.12, 0.12, -0.24, 0.24];   // px
+  const WORD = [0, -0.8, 0.8];                     // px
+  const spaceCache = new Map();
+  const state = new WeakMap();
+
+  function textNodes(el) {
+    const out = []; const w = document.createTreeWalker(el, NodeFilter.SHOW_TEXT); let n;
+    while ((n = w.nextNode())) out.push(n);
+    return out;
+  }
+  function bind(el, on) {
+    // Glue the last three words: no-break spaces between them and no-break hyphens inside them
+    // (a hyphen is otherwise a break opportunity that would split the glued group).
+    const st = state.get(el);
+    if (st.saved) { st.saved.forEach(([node, text]) => { node.textContent = text; }); st.saved = null; }
+    if (!on) return true;
+    const nodes = textNodes(el);
+    const words = nodes.map((t) => t.textContent).join('').trim().split(/\s+/);
+    if (words.length < 6 || words.slice(-3).join(' ').length > 34) return false;
+    const saved = []; let runs = 0; let started = false;
+    for (let i = nodes.length - 1; i >= 0 && runs < 3; i--) {
+      const orig = nodes[i].textContent; const chars = orig.split('');
+      for (let k = chars.length - 1; k >= 0; k--) {
+        const ws = /[ \t\n\u00a0]/.test(chars[k]);
+        if (!started) { if (ws) continue; started = true; }
+        if (ws) {
+          let j = k; while (j > 0 && /[ \t\n\u00a0]/.test(chars[j - 1])) j--;
+          runs++;
+          if (runs >= 3) break;
+          chars.splice(j, k - j + 1, '\u00a0'); k = j;
+        } else if (chars[k] === '-') chars[k] = '\u2011';
+      }
+      const s = chars.join('');
+      if (s !== orig) { saved.push([nodes[i], orig]); nodes[i].textContent = s; }
+    }
+    st.saved = saved;
+    return true;
+  }
+  function spaceWidth(el) {
+    const cs = getComputedStyle(el);
+    const key = cs.font + '|' + cs.letterSpacing + '|' + cs.wordSpacing;
+    if (!spaceCache.has(key)) {
+      const probe = document.createElement('span');
+      probe.style.cssText = 'position:absolute;visibility:hidden;white-space:pre;';
+      probe.textContent = 'a a';
+      el.appendChild(probe);
+      const w2 = probe.getBoundingClientRect().width;
+      probe.textContent = 'aa';
+      const w1 = probe.getBoundingClientRect().width;
+      probe.remove();
+      spaceCache.set(key, Math.max(1, w2 - w1));
+    }
+    return spaceCache.get(key);
+  }
+  function measure(el) {
+    const cs = getComputedStyle(el);
+    const box = el.getBoundingClientRect();
+    const width = box.width - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight);
+    const lines = [];
+    textNodes(el).forEach((node) => {
+      const re = /\S+/g; let m;
+      while ((m = re.exec(node.textContent))) {
+        const r = document.createRange(); r.setStart(node, m.index); r.setEnd(node, m.index + m[0].length);
+        for (const rc of r.getClientRects()) {
+          const t = Math.round(rc.top);
+          const ln = lines.length && Math.abs(lines[lines.length - 1].t - t) <= 4 ? lines[lines.length - 1] : null;
+          if (ln) { ln.n++; ln.w += rc.width; } else lines.push({ t, n: 1, w: rc.width });
         }
       }
-      texts[i].textContent = s;
+    });
+    return { lines, width, sp: spaceWidth(el) };
+  }
+  function ok(el, wantJustify) {
+    const { lines, width, sp } = measure(el);
+    if (lines.length < 2) return true;
+    if (lines[lines.length - 1].n < 3) return false;
+    if (!wantJustify) return true;
+    for (let i = 0; i < lines.length - 1; i++) {
+      const ln = lines[i];
+      if (ln.n < 2) return false;
+      const stretch = (width - (ln.w + (ln.n - 1) * sp)) / (ln.n - 1);
+      if (stretch / sp > MAX_STRETCH) return false;
     }
+    return true;
+  }
+  function fit(el) {
+    if (!state.has(el)) state.set(el, { saved: null });
+    el.style.letterSpacing = ''; el.style.wordSpacing = ''; el.style.textAlign = ''; bind(el, false);
+    const justify = getComputedStyle(el).textAlign === 'justify';
+    const words = el.textContent.trim().split(/\s+/).length;
+    if (words < 4) return;
+    for (const b of [false, true]) {
+      if (b && !bind(el, true)) break;
+      for (const ws of WORD) for (const ls of LETTER) {
+        el.style.letterSpacing = ls ? ls + 'px' : '';
+        el.style.wordSpacing = ws ? ws + 'px' : '';
+        if (ok(el, justify)) return;
+        if (!justify) break;   // ragged text: only the binding matters
+      }
+      el.style.letterSpacing = ''; el.style.wordSpacing = '';
+      if (!justify) break;
+    }
+    if (justify) el.style.textAlign = 'left';
+    bind(el, true);
+  }
+  let timer = null, lastW = 0;
+  function run() {
+    lastW = window.innerWidth;
+    document.querySelectorAll(SEL).forEach((el) => { if (el.offsetParent) fit(el); });
+  }
+  const start = () => run();
+  (document.fonts && document.fonts.ready ? document.fonts.ready : Promise.resolve()).then(start);
+  window.addEventListener('resize', () => {
+    if (Math.abs(window.innerWidth - lastW) < 2) return;
+    clearTimeout(timer); timer = setTimeout(run, 180);
   });
+  window.__fitText = run;   // used by the layout checks
 })();
 
 // ---------------- Cross-View Interaction animation (READ -> MIX -> WRITE) ----------------
