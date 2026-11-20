@@ -134,7 +134,7 @@
     <p class="kicker">Method</p>
     <h2>Per-view generation, shared cross-view interaction</h2>
     <p class="lede">Every view keeps the generation path of the pretrained single-view video model (Wan2.2-TI2V-5B).
-      A Cross-View Interaction module after every block is the only path between views, so one model runs on any number of cameras in any order.</p>
+      A Cross-View Interaction module after each block is the only path between views, so a single model runs on any number of cameras in any order.</p>
 
     <figure class="figure">
       <img src="assets/img/method.webp" loading="lazy" decoding="async" width="2400" height="751" alt="ViewDreamer architecture and the inside of a CVI module" data-zoom>
@@ -142,10 +142,25 @@
         (b) CVI reads all view tokens into shared slots, mixes the slots over space and time, and writes the result back. CSA aligns the last READ with teacher relations between views.</figcaption>
     </figure>
 
+    <h3 class="h3-follow">Inside Cross-View Interaction</h3>
+    <div class="anim-card" id="cvi-anim">
+      <div class="anim-steps" role="tablist" aria-label="CVI steps">
+        <button class="astep" data-phase="read" type="button" role="tab"><span class="n">1</span>READ</button>
+        <button class="astep" data-phase="mixs" type="button" role="tab"><span class="n">2</span>MIX &middot; spatial</button>
+        <button class="astep" data-phase="mixt" type="button" role="tab"><span class="n">3</span>MIX &middot; temporal</button>
+        <button class="astep" data-phase="write" type="button" role="tab"><span class="n">4</span>WRITE</button>
+        <button class="pill anim-play" type="button">Pause</button>
+      </div>
+      <div class="anim-canvas-wrap"><canvas width="1200" height="470" role="img" aria-label="Animation of READ, MIX, and WRITE inside one Cross-View Interaction module"></canvas></div>
+      <p class="anim-cap" aria-live="polite"></p>
+      <div class="anim-progress"><i></i></div>
+    </div>
+    <p class="viewer-hint">One CVI module with three views, four slots, and four latent frames. The patch-to-slot colors are illustrative.</p>
+
     <div class="cards3">
       <div class="mini">
         <h3><span class="mn">1</span>Cross-View Interaction</h3>
-        <p>After every block, <b>READ</b> gathers every view into shared slots, <b>MIX</b> passes information across slots and time, and <b>WRITE</b> returns it to each view through a zero-initialized projection.</p>
+        <p>After every pretrained block, <b>READ</b> gathers every view into shared slots, <b>MIX</b> passes information across slots and time, and <b>WRITE</b> returns it to each view via a zero-initialized projection.</p>
       </div>
       <div class="mini">
         <h3><span class="mn">2</span>Cross-View Slot Agreement</h3>
@@ -153,7 +168,7 @@
       </div>
       <div class="mini">
         <h3><span class="mn">3</span>View-Count Curriculum</h3>
-        <p>Training starts from single views and gradually adds more views. Cross-view interaction thus grows out of the pretrained single-view model instead of disturbing it, which stabilizes training.</p>
+        <p>Training starts from single views and gradually adds more of them. Cross-view interaction thus grows out of the pretrained single-view model instead of disturbing it, which stabilizes training.</p>
       </div>
     </div>
 
@@ -161,11 +176,11 @@
     <div class="split">
       <figure class="figure">
         <img src="assets/img/csa.webp" loading="lazy" decoding="async" width="1600" height="882" alt="READ slot assignments with and without CSA" data-zoom>
-        <figcaption>Last-block READ slot assignments on a RoboView-Bench episode. Slot colors are matched across the rows.</figcaption>
+        <figcaption>Last-block READ slot assignments on one RoboView-Bench episode. Each color marks the same slot in both rows.</figcaption>
       </figure>
       <div>
-        <p>Without CSA, the slots only partially group regions such as the basket (dashed) and the gripper (dotted), and the groups stay fragmented.
-          With CSA, the same region seen by different cameras falls into the same slot.</p>
+        <p>Without CSA, slots only partially group regions such as the basket (dashed) or the gripper (dotted), and these groups remain fragmented.
+          With CSA, one region seen by different cameras falls into the same slot.</p>
         <ul class="points">
           <li>Teacher relations combine <b>DINOv2</b> semantics and <b>VGGT-&Omega;</b> geometry and are computed offline.</li>
           <li>The agreement loss only shapes the last READ attention and is dropped at inference.</li>
@@ -176,8 +191,8 @@
     <h3 class="h3-follow">Scales with the number of cameras</h3>
     <div class="split rev">
       <div>
-        <p>From three to eight views, DiT time per sample grows from 38.5&nbsp;s to 104&nbsp;s with CVI, but from 52.5&nbsp;s to 263&nbsp;s with full cross-view attention.
-          Each extra view adds a nearly constant 13&nbsp;s with CVI.</p>
+        <p>Between three and eight views, DiT time per sample grows from 38.5&nbsp;s to 104&nbsp;s with CVI, but from 52.5&nbsp;s to 263&nbsp;s with full cross-view attention.
+          With CVI, each additional view adds a nearly constant 13&nbsp;s.</p>
         <p>Cross-view consistency and downstream policy success also keep improving as the pretraining data grow.</p>
       </div>
       <figure class="figure">
@@ -221,7 +236,7 @@
   <div class="wrap">
     <p class="kicker">RoboView-Bench</p>
     <h2>Best generation quality among the models evaluated</h2>
-    <p class="lede">500 held-out episodes with three and four cameras. Wan2.2-5B (FT) is fine-tuned on the same data as ViewDreamer and generates each view independently; the other baselines run zero-shot.
+    <p class="lede">RoboView-Bench holds out 500 episodes with three and four cameras. Wan2.2-5B (FT) is fine-tuned on the same data as ViewDreamer and generates each view independently, while the other baselines run zero-shot.
       CVC measures cross-view consistency between the generated views.</p>
     <div class="chips" id="table-tabs">
       <button class="chip" aria-pressed="true" data-prof="3" type="button">3 views</button>
@@ -243,7 +258,7 @@
     <p class="kicker">Downstream transfer</p>
     <h2>A better prior for robot learning</h2>
     <p class="lede">Our world-action model (WAM) adds CVI to FastWAM-Joint and initializes its video network from ViewDreamer.
-      With the same data and recipe, it improves success in simulation and on a real Franka robot, with the largest gains out of domain.</p>
+      Trained with the same data and recipe, it raises success in simulation and on a real Franka robot, with the largest gains out of domain.</p>
 
     <div class="chart-legend">
       <span><i class="sw" style="background:var(--m0)"></i>FastWAM</span>
